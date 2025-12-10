@@ -3,7 +3,7 @@ import numpy as np
 import os
 from joblib import dump, load
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score, recall_score, roc_auc_score, balanced_accuracy_score, roc_curve, matthews_corrcoef, precision_score, precision_recall_curve, auc, average_precision_score
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score, recall_score, roc_auc_score, balanced_accuracy_score, roc_curve, matthews_corrcoef, precision_score, average_precision_score
 from sklearn.model_selection import cross_val_predict, StratifiedKFold, KFold, LeaveOneOut
 import xgboost as xgb
 from sklearn.svm import SVC
@@ -43,7 +43,7 @@ def y_prediction(model, x_train, y_train, col_name):
     sen = recall_score(y_train, y_pred)
     mcc = matthews_corrcoef(y_train, y_pred)
     auroc = roc_auc_score(y_train, y_pred)
-    auprc = average_precision_score(y_train, y_pred)
+    balanced_acc = balanced_accuracy_score(y_train, y_pred)
     # Calculate specificity
     tn, fp, fn, tp = confusion_matrix(y_train, y_pred).ravel()
     spc = tn / (tn + fp)
@@ -55,7 +55,7 @@ def y_prediction(model, x_train, y_train, col_name):
         'Specificity': [spc],
         'MCC': [mcc],
         'AUC': [auroc],
-        'AUPRC': [auprc],
+        'Balanced_Accuracy': [balanced_acc],
     }, index=[col_name])
     return y_pred, metrics
 
@@ -66,7 +66,7 @@ def y_prediction_cv(model, x_train, y_train, col_name):
     sen = recall_score(y_train, y_pred)
     mcc = matthews_corrcoef(y_train, y_pred)
     auroc = roc_auc_score(y_train, y_pred)
-    auprc = average_precision_score(y_train, y_pred)
+    balanced_acc = balanced_accuracy_score(y_train, y_pred)
     # Calculate specificity
     tn, fp, fn, tp = confusion_matrix(y_train, y_pred).ravel()
     spc = tn / (tn + fp)
@@ -78,19 +78,16 @@ def y_prediction_cv(model, x_train, y_train, col_name):
         'Specificity': [spc],
         'MCC': [mcc],
         'AUC': [auroc],
-        'AUPRC': [auprc],
+        'Balanced_Accuracy': [balanced_acc],
     }, index=[col_name])
     return y_pred, metrics
 
 
-def plot_auc_auprc_cv(model, x_train, y_train, col_name):
+def plot_roc_auc_cv(model, x_train, y_train, col_name):
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     tprs = []
     aucs = []
     mean_fpr = np.linspace(0, 1, 100)
-    precisions = []
-    auprcs = []
-    mean_recall = np.linspace(0, 1, 100)
 
     # ROC Curve
     plt.figure(figsize=(4, 3))
@@ -104,7 +101,7 @@ def plot_auc_auprc_cv(model, x_train, y_train, col_name):
             y_score = model.decision_function(x_val)
         # ROC
         fpr, tpr, _ = roc_curve(y_val, y_score)
-        roc_auc = auc(fpr, tpr)
+        roc_auc = roc_auc_score(y_val, y_score)
         aucs.append(roc_auc)
         plt.plot(fpr, tpr, lw=1, alpha=0.7, label=f"Fold {i+1} (AUC = {roc_auc:.2f})")
         # Interpolate tpr
@@ -112,7 +109,7 @@ def plot_auc_auprc_cv(model, x_train, y_train, col_name):
         tprs[-1][0] = 0.0
     # Plot mean ROC
     mean_tpr = np.mean(tprs, axis=0)
-    mean_auc = auc(mean_fpr, mean_tpr)
+    mean_auc = np.mean(aucs)
     std_auc = np.std(aucs)
     plt.plot(mean_fpr, mean_tpr, color='b', label=f"Mean AUROC = {mean_auc:.2f} ± {std_auc:.2f}", lw=2)
     plt.plot([0, 1], [0, 1], linestyle='--', color='gray', lw=1)
@@ -122,35 +119,6 @@ def plot_auc_auprc_cv(model, x_train, y_train, col_name):
     plt.legend(bbox_to_anchor=(1,1), loc="upper left", fontsize='small')
     plt.tight_layout()
     plt.savefig(os.path.join("graph_metrics",f"{col_name}_roc_auc_cv.png"), dpi=500)
-    plt.close()
-
-    # Precision-Recall Curve
-    plt.figure(figsize=(5, 3))
-    for i, (train_idx, val_idx) in enumerate(skf.split(x_train, y_train)):
-        x_tr, x_val = x_train.iloc[train_idx], x_train.iloc[val_idx]
-        y_tr, y_val = y_train.iloc[train_idx], y_train.iloc[val_idx]
-        model.fit(x_tr, y_tr)
-        if hasattr(model, "predict_proba"):
-            y_score = model.predict_proba(x_val)[:, 1]
-        else:
-            y_score = model.decision_function(x_val)
-        precision, recall, _ = precision_recall_curve(y_val, y_score)
-        auprc = average_precision_score(y_val, y_score)
-        auprcs.append(auprc)
-        plt.plot(recall, precision, lw=1, alpha=0.7, label=f"Fold {i+1} (AUPRC = {auprc:.2f})")
-        # Interpolate precision
-        precisions.append(np.interp(mean_recall, recall[::-1], precision[::-1]))
-    # Plot mean PRC
-    mean_precision = np.mean(precisions, axis=0)
-    mean_auprc = np.mean(auprcs)
-    std_auprc = np.std(auprcs)
-    plt.plot(mean_recall, mean_precision, color='b', label=f"Mean AUPRC = {mean_auprc:.2f} ± {std_auprc:.2f}", lw=2)
-    plt.xlabel("Recall (Sensitivity)", fontsize=12, fontstyle='italic', weight="bold")
-    plt.ylabel("Precision", fontsize=12, fontstyle='italic', weight="bold")
-    plt.title(f"AUPRC - {col_name}", fontsize=12, fontstyle='italic', weight="bold")
-    plt.legend(bbox_to_anchor=(1,1), loc="upper left", fontsize='small')
-    plt.tight_layout()
-    plt.savefig(os.path.join("graph_metrics",f"{col_name}_prc_auprc_cv.png"), dpi=500)
     plt.close()
 
 # Plot AUROC and AUPRC for Test Set
