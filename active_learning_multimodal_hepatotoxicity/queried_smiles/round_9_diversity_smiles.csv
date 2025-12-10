@@ -1,0 +1,11 @@
+SMILES
+O=C1C(CCC(O)c2ccc(F)cc2)C(c2ccc(O)cc2)N1c1ccc(F)cc1
+IC(I)I
+BrC(Br)Br
+CCBr
+ClC(Cl)=C(Cl)C(Cl)=C(Cl)Cl
+BrCCBr
+C[C@H](O)C(=O)Nc1c(I)c(C(=O)NC(CO)CO)c(I)c(C(=O)NC(CO)CO)c1I
+ClC(Cl)Cl
+ClC(Cl)Br
+CCCCCCCCCC=O

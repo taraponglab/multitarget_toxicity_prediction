@@ -1,0 +1,11 @@
+SMILES
+CC(C)(CO)C(O)C(=O)NCCC(=O)O
+CN1C(=O)OC(C)(C)C1=O
+N#Cc1ccccc1-c1cc(-c2ccccn2)cn(-c2ccccc2)c1=O
+CNC1C(OC2C(OC3C(O)C(O)C(N=C(N)N)C(O)C3N=C(N)N)OC(C)C2(O)C=O)OC(CO)C(O)C1O
+Cc1cc2c(cc1Br)C1(C)CCC(C)C1(C)O2
+CNC(=C[N+](=O)[O-])NCCSCc1csc(CN(C)C)n1
+O=C(O)Cc1csc(-c2ccc(Cl)cc2)n1
+O=C(O)COC(=O)Cc1ccccc1Nc1c(Cl)cccc1Cl
+COc1cc2c(cc1O)C1C(O)C(O)C=C3CCN(C2)C31
+NC1CCN(c2nc3c(cc2F)c(=O)c(C(=O)O)cn3-c2ccc(F)cc2F)C1

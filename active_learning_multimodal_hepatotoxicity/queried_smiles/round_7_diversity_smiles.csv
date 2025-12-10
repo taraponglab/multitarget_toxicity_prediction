@@ -1,0 +1,11 @@
+SMILES
+CCn1cc(C(=O)O)c(=O)c2cc(F)c(N3CCN(C)CC3)cc21
+IC(I)I
+BrC(Br)Br
+ClC(Cl)Br
+CC(=O)NCc1c(I)c(NC(C)=O)c(I)c(C(=O)O)c1I
+CN(CC(O)CO)C(=O)c1c(I)c(NC(=O)C(CO)CO)c(I)c(C(=O)N(C)CC(O)CO)c1I
+BrCCBr
+CCBr
+CCC(Cc1c(I)cc(I)c(N)c1I)C(=O)O
+CC[C@H](C)[C@H](N)C1=N[C@H](C(=O)N[C@@H](CC(C)C)C(=O)N[C@H](CCC(=O)O)C(=O)N[C@H](C(=O)N[C@H]2CCCCNC(=O)[C@H](CC(N)=O)NC(=O)[C@@H](CC(=O)O)NC(=O)[C@H](Cc3cnc[nH]3)NC(=O)[C@@H](Cc3ccccc3)NC(=O)[C@H]([C@@H](C)CC)NC(=O)[C@@H](CCCN)NC2=O)[C@@H](C)CC)CS1

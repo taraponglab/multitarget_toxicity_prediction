@@ -1,0 +1,11 @@
+SMILES
+O=c1cc(-c2ccc(O)cc2)oc2cc(OC3OC(CO)C(O)C(O)C3O)c(C3OC(CO)C(O)C(O)C3O)c(O)c12
+OCC1OC(O)C(O)C(O)C1O
+O=C1c2c(O)cccc2C(C2OC(CO)C(O)C(O)C2O)c2cc(CO)cc(O)c21
+OC[C@H]1O[C@@H](O[C@H]2[C@H](O)[C@@H](O)[C@H](O)O[C@@H]2CO)[C@H](O)[C@@H](O)[C@H]1O
+O=C(CCc1ccc(O)cc1)Oc1cc(Cc2ccccc2)c(OC2OC(CO)C(O)C(O)C2O)cc1O
+ClC(Cl)Br
+O=CC(O)C(O)C(O)C(O)COC1OC(COC2OC(CO)C(O)C(O)C2O)C(O)C(O)C1O
+OCC(O)CO
+OC[C@@H](O)[C@@H](O)[C@H](O)[C@@H](O)CO
+OCC(O)C(O)C(O)C(O)CO
