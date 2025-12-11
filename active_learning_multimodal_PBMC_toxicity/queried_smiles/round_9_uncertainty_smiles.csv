@@ -1,0 +1,6 @@
+SMILES
+COc1ccc(C(=CC#N)c2cc(OC)c(OC)c(OC)c2)cc1OC
+CC(C)(C)c1cc(C(=O)N2CCNC(=O)CC2)c(NC(=O)Nc2cccc(Cl)c2Cl)s1
+CN(C)CCN1CCN(C(=O)c2cc(C(C)(C)C)sc2NC(=O)Nc2cccc(Cl)c2Cl)CCC1=O
+CCOc1cc(C(=CC#N)c2ccc(OC)c(OC(=O)N(C)C)c2)ccc1OC
+CC(C)(C)c1cc(C(=O)N2CCC(=O)N(CC(N)=O)CC2)c(NC(=O)Nc2cccc(Cl)c2Cl)s1

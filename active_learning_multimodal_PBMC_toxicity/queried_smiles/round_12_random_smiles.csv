@@ -1,0 +1,6 @@
+SMILES
+COC[C@@](O)([C@@H](Nc1cc(F)cc2[nH]c(=O)ccc12)c1ccc(OC)c(F)c1Cl)C(F)(F)F
+CCOc1cc(C(=CC#N)c2cc(OC)cc(OC)c2)ccc1OC
+[N-]=[N+]=N[C@H]1C[C@H](n2cnc3c(NC4CC4)nc(Cl)nc32)O[C@@H]1CO
+O=C(c1ccc(-c2ccc(F)cc2)o1)n1cccn1
+COC(=O)[C@@H](NC(=O)CC/C(C)=C/Cc1c(O)c2c(c(C)c1OC)COC2=O)C(C)C
