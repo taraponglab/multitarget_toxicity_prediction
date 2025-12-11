@@ -1,0 +1,6 @@
+SMILES
+CCC[CH2][Hg][S][Hg][CH2]CCC
+CC[CH2][Hg][S][Hg][CH2]CC
+C[CH2][Hg][S][Hg][CH2]C
+CN(C)[C@H]1C(O)=C(C(=O)NCN2CCC[C@H]2C(=O)O)C(=O)[C@]2(O)C(O)=C3C(=O)c4c(O)cccc4[C@@](C)(O)[C@@H]3C[C@H]12
+C/C=C1\CN2CCc3c([nH]c4ccccc34)[C@@H]2C[C@H]1[C@H](C(=O)OC)[C@@H]1OC[C@H]2[C@H]3C[C@@H]4N(CC[C@]45c4ccccc4N1[C@@H]25)C[C@H]3CC

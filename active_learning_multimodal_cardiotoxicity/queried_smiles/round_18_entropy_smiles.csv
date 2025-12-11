@@ -1,0 +1,16 @@
+SMILES
+CNC(=O)c1c(NCC2CCC3(CCC3)CC2)nc(C#N)nc1OCCC1CCN(C)CC1
+N[C@H](C(=O)N1CCC(F)C1)C1CCCCC1
+NC(C(=O)N1CCC(F)C1)C1CCCCC1
+CC[C@H]1OC(=O)[C@H](C)[C@@H](O[C@H]2C[C@@](C)(OC)[C@@H](O)[C@H](C)O2)[C@H](C)[C@@H](O[C@@H]2O[C@H](C)C[C@H](N(C)C)[C@H]2O)[C@](C)(O)C[C@@H](C)[C@H](N)[C@H](C)[C@@H](O)[C@]1(C)O
+CC[C@H]1OC(=O)[C@H](C)[C@@H](O[C@H]2C[C@@](C)(OC)[C@@H](O)[C@H](C)O2)[C@H](C)[C@@H](O[C@@H]2O[C@H](C)C[C@H](N(C)C(C)C)[C@H]2O)[C@](C)(O)C[C@@H](C)[C@H](O)[C@H](C)[C@@H](O)[C@]1(C)O
+CC[C@H]1OC(=O)[C@H](C)[C@@H](O[C@H]2C[C@@](C)(OC)[C@@H](O)[C@H](C)O2)[C@H](C)[C@@H](O[C@@H]2O[C@H](C)C[C@H](N(C)C)[C@H]2O)[C@](C)(O)C[C@@H](C)CN(C)[C@H](C)[C@@H](O)[C@]1(C)O
+CC[C@H]1OC(=O)[C@@H](C)[C@@H](O[C@H]2C[C@@](C)(OC)[C@@H](O)[C@H](C)O2)[C@H](C)[C@@H](O[C@@H]2O[C@H](C)C[C@H]([NH+](C)C)[C@@H]2O)[C@@](C)(O)C[C@@H](C)[C@H]([NH3+])[C@H](C)[C@@H](O)[C@]1(C)O
+CC[C@H]1OC(=O)[C@H](C)[C@@H](O[C@H]2C[C@@](C)(OC)[C@@H](O)[C@H](C)O2)[C@H](C)[C@@H](O[C@@H]2O[C@H](C)C[C@H](N(C)C(C)C)[C@H]2O)[C@](C)(O)C[C@@H](C)[C@H](OCC(=O)NC)[C@H](C)[C@@H](O)[C@]1(C)O
+O=c1c(O)c(-c2ccc(O)cc2O)oc2cc(O)cc(O)c12
+CC(C)[C@H](Oc1ccc(CNC(=O)[C@@H]2CCCN2C(=O)[C@@H](N)C2CCCCC2)cc1)C(=O)O
+NC(=O)CNC[C@H]1CC[C@]2(CC1)OO[C@]1(O2)C2CC3CC(C2)CC1C3
+CC[C@H]1OC(=O)[C@H](C)[C@@H](O[C@H]2C[C@@](C)(OC)[C@@H](O)[C@H](C)O2)[C@H](C)[C@@H](O[C@@H]2O[C@H](C)C[C@H](N(C)C(C)C)[C@H]2O)[C@](C)(O)C[C@@H](C)[C@H](OCCCCC(=O)NC)[C@H](C)[C@@H](O)[C@]1(C)O
+O=C(O[C@@H]1Cc2c(O)cc(O)cc2O[C@@H]1c1cc(O)c(O)c(O)c1)c1cc(O)c(O)c(O)c1
+Cc1cn([C@H]2C[C@@H](O)[C@H](CO)O2)c(=O)[nH]c1=O
+NC(N)=[NH+]c1nc(CSCC/C(N)=[NH+]/S(N)(=O)=O)cs1

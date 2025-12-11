@@ -1,0 +1,16 @@
+SMILES
+CC1NC(c2cc(C#N)ccn2)=NC1(c1ccc(F)cc1)c1ccc(F)cc1
+Cc1cccc(CCN2CCC(C(=O)c3ccc(NS(C)(=O)=O)cc3)CC2)c1
+CNCC[C@H](Oc1ccc2ccccc2c1)c1cccs1
+CC1CN(C(=O)c2ccccc2)CCN1C(=O)C(=O)c1c[nH]c2ncccc12
+Cc1ccc2c(N3CCN(CCc4cccc5c4OCc4c(C(=O)NCC6CC6)ncn4-5)CC3)cccc2n1
+c1ccc(C(Cc2ccccc2OC2CC2)N2CCNCC2)cc1
+CC(C)[C@]1(C(=O)NCc2cc(C(F)(F)F)cc(C(F)(F)F)c2)CC[C@@H](N2CCC(c3cccnc3)CC2)C1
+NCC(O)COc1ccccc1C(=O)CCc1ccccc1
+CCN(CC)Cc1ccc2c(c1)CCC(N1CCN(CCc3ccc(Cl)cc3)CC1=O)C2
+O=c1ccc2ncc(F)c3c2n1CC3(O)CC12CCC(NCCc3cc(F)ccc3F)(CC1)CO2
+N#Cc1ccc2[nH]c(C3CCN(CCn4c(=O)ccc5ncc(Oc6cccnc6)cc54)CC3)nc2c1
+CN1CC2CC(N(Cc3ccc(F)c(OC4CCCC4)c3)C(=O)c3cn(C)cn3)CC2C1
+Cn1c(-c2ccccc2)nnc1C(F)(F)CCCN1CC2C[C@]2(c2ccc(C(F)(F)F)cc2)C1
+C[C@@H]1CCCN1CCc1ccc2nc(-c3ccc(C#N)cc3)ccc2c1
+CC(C(=O)NC1(c2ccccc2)CCC(N2CCC3(CC2)OCCO3)CC1)c1cc(C(F)(F)F)cc(C(F)(F)F)c1

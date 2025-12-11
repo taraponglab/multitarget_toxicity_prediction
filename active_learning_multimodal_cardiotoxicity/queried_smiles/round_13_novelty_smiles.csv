@@ -1,0 +1,16 @@
+SMILES
+NC(N)=[NH+]c1nc(CSCC/C(N)=[NH+]/S(N)(=O)=O)cs1
+CC[N+](CC)(CC)CC
+C1CCC(C(C[C@H]2CCCC[NH2+]2)C2CCCCC2)CC1
+Nc1nnc(-c2cccc(Cl)c2Cl)c(N)n1
+O[C@]1(c2ccc(F)c(F)c2)CCNC[C@@H]1c1onc(-c2c(Cl)cccc2Cl)c1Br
+C[N+](C)(C)C
+O=C(NCC1CCN(Cc2ccc(Br)nc2)CC1)c1cc(Cl)cc(Cl)c1
+CC1(C)C2=C3C=C4C5=[N+](CCC4OC3CCN2c2ccc(CC(=O)NCCCCCN(CCOc3ccc(NS(C)(=O)=O)cc3)CCc3ccc(NS(C)(=O)=O)cc3)cc21)c1ccc(S(=O)(=O)[O-])cc1C5(C)C
+COc1cc(-c2cn(Cc3cc(Br)cc(Br)c3)nn2)ccc1-n1cnc(C)c1
+N[C@H](C(=O)N1CCSC1)[C@H]1CC[C@H](NC(=O)Nc2ccc(I)cc2)CC1
+Clc1ccc(C(c2ccccc2Cl)C(Cl)(Cl)Cl)cc1
+O=C1N(CCN2CCC(C(F)(F)F)CC2)CCN1c1cccc(I)c1
+CNCc1ccc(Br)cc1Oc1ccc(Cl)c(Cl)c1
+O=C1OC2(c3cc(Br)c(O)c(Br)c3Oc3c2cc(Br)c(O)c3Br)c2c(Cl)c(Cl)c(Cl)c(Cl)c21
+ClC(Cl)Cl

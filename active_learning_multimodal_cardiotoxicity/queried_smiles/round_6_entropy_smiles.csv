@@ -1,0 +1,16 @@
+SMILES
+Nc1cc(-c2ccncc2)c[nH]c1=O
+CCCCCCCCCC#CCc1cccc(CC#CCCCCCCCCC)[n+]1C
+C[n+]1c(CCc2ccccc2)cccc1CCc1ccccc1
+CCCCCCCCCCc1cccc(CCCCCCCCCC)[n+]1C
+C[n+]1c(CCc2ccc(-c3ccccc3)cc2)cccc1CCc1ccc(-c2ccccc2)cc1
+COc1ccc(C#Cc2cccc(C#Cc3ccc(OC)cc3)[n+]2C)cc1
+COc1cccc(-c2ccc(C#Cc3cccc(C#Cc4ccc(-c5cccc(OC)c5)cc4)[n+]3C)cc2)c1
+C[n+]1c(C#Cc2cccc(Cl)c2)cccc1C#Cc1cccc(Cl)c1
+C[n+]1c(C#CC2CCCCC2)cccc1C#CC1CCCCC1
+CCCCCCC#Cc1cccc(C#CCCCCCC)[n+]1C
+Cc1ccccc1-c1ccc(C#Cc2cccc(C#Cc3ccc(-c4ccccc4C)cc3)[n+]2C)cc1
+C[n+]1c(C#Cc2ccc(-c3ccc(O)cc3)cc2)cccc1C#Cc1ccc(-c2ccc(O)cc2)cc1
+C[n+]1c(C#Cc2ccccc2)cccc1C#Cc1ccccc1
+Cc1ccc(C#Cc2cccc(C#Cc3ccc(C)cc3)[n+]2C)cc1
+Nc1ccncc1

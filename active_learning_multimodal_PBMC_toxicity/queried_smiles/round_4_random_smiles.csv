@@ -1,0 +1,6 @@
+SMILES
+O=c1cc(-c2ccc(O)c(-c3c(O)cc4oc(-c5ccc(O)cc5)cc(=O)c4c3O)c2)oc2cc(O)cc(O)c12
+CN1CC2(CNC(=O)c3c2[nH]c2c3CCc3cnc(-c4cccc(F)c4)c(F)c3-2)C1
+Clc1ccc2c(NCCNCc3ccc(-c4cccnc4)s3)ccnc2c1
+COc1ccc(C(=CC#N)c2cc(OC)cc(OC)c2)cc1
+O=c1c(Cl)c(OCc2ccc(F)cc2F)cc(CO)n1-c1c(F)cccc1F

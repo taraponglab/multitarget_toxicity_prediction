@@ -1,0 +1,6 @@
+SMILES
+O=C(O)C(=O)CC(=O)c1ccc2c(ccc3cc(Cl)ccc32)c1
+C=C1/C(=C\C=C2/CCC[C@]3(C)C(C4(CC#CC(O)(C(F)(F)F)C(F)(F)F)CC4)=CC[C@@H]23)C[C@@H](O)C[C@@H]1O
+Sc1ncnc2nc[nH]c12
+C=C1C(=O)[C@@]23C(=O)OC[C@]4(C(=O)CCC(C)(C)[C@H]4C=O)[C@@H]2CC[C@@H]1[C@H]3OC(=O)CCC(=O)Oc1ccc(-c2cc(=S)ss2)cc1
+CCCCc1c(C)c2ccc(OC(=O)N(C)C)cc2oc1=O

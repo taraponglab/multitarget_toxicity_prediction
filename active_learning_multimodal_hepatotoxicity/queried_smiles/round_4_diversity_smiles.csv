@@ -1,11 +1,11 @@
 SMILES
-CC1(C)CCC2(C)CCC3(C)C(=CCC4C5(C)CCC(O)C(C)(C(=O)O)C5CCC43C)C2C1
+CC1=CC(=O)C(C(C)C)CC1
 IC(I)I
 BrC(Br)Br
 ClC(Cl)Br
-CCCC(=O)Nc1c(I)cc(I)c(CC(CC)C(=O)O)c1I
-Clc1c(Cl)c(Cl)c(Cl)c(Cl)c1Cl
+CC(=O)Nc1c(I)c(NC(C)=O)c(I)c(C(=O)O)c1I
+O=C(CCBr)N1CCN(C(=O)CCBr)CC1
 BrCCBr
-CC[C@H](C)[C@H](N)C1=N[C@H](C(=O)N[C@@H](CC(C)C)C(=O)N[C@H](CCC(=O)O)C(=O)N[C@H](C(=O)N[C@H]2CCCCNC(=O)[C@H](CC(N)=O)NC(=O)[C@@H](CC(=O)O)NC(=O)[C@H](Cc3cnc[nH]3)NC(=O)[C@@H](Cc3ccccc3)NC(=O)[C@H]([C@@H](C)CC)NC(=O)[C@@H](CCCN)NC2=O)[C@@H](C)CC)CS1
 CCBr
-CCC(Cc1c(I)cc(I)c(N)c1I)C(=O)O
+CC(=O)Nc1c(I)cc(I)c(C(=O)O)c1I
+NS(=O)(=O)c1cc2c(cc1Cl)NC(C(Cl)Cl)NS2(=O)=O

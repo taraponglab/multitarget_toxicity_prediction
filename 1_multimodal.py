@@ -9,12 +9,12 @@ from typing import List, Tuple, Dict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, random_split
 from torch_geometric.data import Data, Batch
 from torch_geometric.nn import GCNConv, global_mean_pool
 from rdkit import Chem
 from sklearn.model_selection import StratifiedKFold, train_test_split
-from sklearn.metrics import balanced_accuracy_score, pairwise_distances
+from sklearn.metrics import average_precision_score, roc_auc_score, balanced_accuracy_score, f1_score, precision_recall_curve, pairwise_distances
 from sklearn.neighbors import NearestNeighbors
 from scipy.stats import entropy
 from tqdm import tqdm
@@ -30,6 +30,22 @@ from rdkit.Chem import MACCSkeys
 # Set device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"🖥️  Using device: {device}")
+
+# === 0.2. Dynamic Batch Size Helper ===
+def get_dynamic_batch_size(dataset_size, max_batch_size=32):
+    """
+    Dynamically adjusts batch size for small datasets to avoid BatchNorm errors.
+    """
+    if dataset_size < 4:
+        return 2  # Minimum batch size to prevent BatchNorm error
+    
+    # Find the largest power of 2 less than or equal to the dataset size, up to max_batch_size
+    batch_size = 1
+    while (batch_size * 2) <= min(dataset_size, max_batch_size):
+        batch_size *= 2
+        
+    return batch_size
+
 
 # === 0.5. Fingerprint and Descriptor Calculation Functions ===
 
@@ -648,36 +664,55 @@ def train_with_validation(model, full_train_dataset, epochs, criterion_cls, crit
     Trains a model, using a validation split to find the best model state.
     Returns the best model state dict and training history.
     """
-    # Split the full training data set nto sub-train and sub-validation sets
-    train_size = int(0.8 * len(full_train_dataset))
-    val_size = len(full_train_dataset) - train_size
-    sub_train_dataset, sub_val_dataset = torch.utils.data.random_split(full_train_dataset, [train_size, val_size])
+    dataset_size = len(full_train_dataset)
+    batch_size = get_dynamic_batch_size(dataset_size)
 
-    sub_train_loader = DataLoader(sub_train_dataset, batch_size=32, shuffle=True, collate_fn=collate_fn)
-    sub_val_loader = DataLoader(sub_val_dataset, batch_size=128, shuffle=False, collate_fn=collate_fn)
+    # If the dataset is too small for a validation split, train on the whole thing
+    if dataset_size < batch_size * 1.25: # Heuristic: need at least a full batch for train and some for val
+        print(f"⚠️  Dataset too small for validation split (size={dataset_size}), training on full dataset with batch_size={batch_size}.")
+        sub_train_loader = DataLoader(full_train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn, drop_last=True)
+        sub_val_loader = None # No validation
+    else:
+        # Split the full training data set nto sub-train and sub-validation sets
+        train_size = int(0.8 * dataset_size)
+        val_size = dataset_size - train_size
+        sub_train_dataset, sub_val_dataset = torch.utils.data.random_split(full_train_dataset, [train_size, val_size])
+        
+        # Adjust batch size for the smaller training split
+        train_batch_size = get_dynamic_batch_size(len(sub_train_dataset))
+        print(f"   - Using dynamic batch size: {train_batch_size} for training split.")
 
-    best_val_balanced_acc = 0.0
-    best_model_state = None
-    history = {'loss': [], 'acc': [], 'val_balanced_acc': []}
+        sub_train_loader = DataLoader(sub_train_dataset, batch_size=train_batch_size, shuffle=True, collate_fn=collate_fn, drop_last=True)
+        sub_val_loader = DataLoader(sub_val_dataset, batch_size=128, shuffle=False, collate_fn=collate_fn)
+
+    best_val_auprc = 0.0
+    best_model_state = model.state_dict() # Start with current state
+    history = {'loss': [], 'acc': [], 'val_auprc': []}
 
     for epoch in range(epochs):
         loss, acc = train_multimodal(model, sub_train_loader, criterion_cls, criterion_recon, optimizer, device)
         history['loss'].append(loss)
         history['acc'].append(acc)
 
-        # Evaluate on the sub-validation set
-        val_probs, val_labels = evaluate_multimodal(model, sub_val_loader, device)
-        val_preds = np.argmax(val_probs, axis=1)
-        val_balanced_acc = balanced_accuracy_score(val_labels, val_preds)
-        history['val_balanced_acc'].append(val_balanced_acc)
+        # Evaluate on the sub-validation set if it exists
+        if sub_val_loader:
+            val_probs, val_labels = evaluate_multimodal(model, sub_val_loader, device)
+            # Use probabilities of the positive class (class 1) for AUPRC
+            val_auprc = average_precision_score(val_labels, val_probs[:, 1])
+            history['val_auprc'].append(val_auprc)
 
-        print(f"Epoch {epoch+1}/{epochs} | Train Loss: {loss:.4f} | Train Acc: {acc:.2f}% | Val BACC: {val_balanced_acc:.4f}")
+            print(f"Epoch {epoch+1}/{epochs} | Train Loss: {loss:.4f} | Train Acc: {acc:.2f}% | Val AUPRC: {val_auprc:.4f}")
 
-        scheduler.step(val_balanced_acc)
+            scheduler.step(val_auprc)
 
-        if val_balanced_acc > best_val_balanced_acc:
-            best_val_balanced_acc = val_balanced_acc
+            if val_auprc > best_val_auprc:
+                best_val_auprc = val_auprc
+                best_model_state = model.state_dict()
+        else:
+            # If no validation, just save the last epoch's model
+            print(f"Epoch {epoch+1}/{epochs} | Train Loss: {loss:.4f} | Train Acc: {acc:.2f}% | No validation.")
             best_model_state = model.state_dict()
+            history['val_auprc'].append(0.0) # Append 0 as a placeholder
             
     return best_model_state, history
 
@@ -872,14 +907,17 @@ def diversity_sampling(model, pool_dataset, n_samples: int, device) -> np.ndarra
     return np.array(selected_idx)
 
 
-# === 8. Compute CV Balanced Accuracy ===
-def compute_cv_balanced_acc(desc, ecfp, maccs, rdkit, smiles, labels, n_splits=5):
-    """Compute 5-fold CV Balanced Accuracy for Multimodal"""
+# === 8. Compute CV AUPRC ===
+def compute_cv_auprc(desc, ecfp, maccs, rdkit, smiles, labels, n_splits=5):
+    """Compute 5-fold CV AUPRC for Multimodal"""
     cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
     cv_scores = []
     
     progress_bar = tqdm(cv.split(np.zeros(len(labels)), labels), total=n_splits, desc="5-Fold CV Progress")
     for train_idx, val_idx in progress_bar:
+        # Determine dynamic batch size for this fold
+        batch_size = get_dynamic_batch_size(len(train_idx))
+
         # Create datasets
         train_dataset = MolecularDataset(
             desc.iloc[train_idx], ecfp.iloc[train_idx], maccs.iloc[train_idx], rdkit.iloc[train_idx], smiles[train_idx], labels[train_idx]
@@ -888,7 +926,7 @@ def compute_cv_balanced_acc(desc, ecfp, maccs, rdkit, smiles, labels, n_splits=5
             desc.iloc[val_idx], ecfp.iloc[val_idx], maccs.iloc[val_idx], rdkit.iloc[val_idx], smiles[val_idx], labels[val_idx]
         )
         
-        train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, collate_fn=collate_fn)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn, drop_last=True)
         val_loader = DataLoader(val_dataset, batch_size=128, shuffle=False, collate_fn=collate_fn)
         
         # Create and train model
@@ -909,9 +947,8 @@ def compute_cv_balanced_acc(desc, ecfp, maccs, rdkit, smiles, labels, n_splits=5
         
         # Evaluate
         probs, val_labels = evaluate_multimodal(model, val_loader, device)
-        preds = np.argmax(probs, axis=1)
-        balanced_acc = balanced_accuracy_score(val_labels, preds)
-        cv_scores.append(balanced_acc)
+        auprc = average_precision_score(val_labels, probs[:, 1])
+        cv_scores.append(auprc)
     
     return np.array(cv_scores)
 
@@ -1037,6 +1074,9 @@ def train_baseline_multimodal(
     # Create datasets
     full_train_dataset = MolecularDataset(desc_train, ecfp_train, maccs_train, rdkit_train, smiles_train, y_train)
     test_dataset = MolecularDataset(desc_test, ecfp_test, maccs_test, rdkit_test, smiles_test, y_test)
+    
+    # Use dynamic batch size for baseline training as well, though it's less likely to be small
+    batch_size = get_dynamic_batch_size(len(full_train_dataset))
     test_loader = DataLoader(test_dataset, batch_size=128, shuffle=False, collate_fn=collate_fn)
     
     # Create model
@@ -1070,31 +1110,41 @@ def train_baseline_multimodal(
     # Final evaluation on the unseen test set
     test_probs, test_labels = evaluate_multimodal(model, test_loader, device)
     test_preds = np.argmax(test_probs, axis=1)
-    final_test_balanced_acc = balanced_accuracy_score(test_labels, test_preds)
     
-    print(f"\n✅ Best Validation Balanced Accuracy during training: {max(history['val_balanced_acc']):.4f}")
-    print(f"✅ Final Test Balanced Accuracy (from best model): {final_test_balanced_acc:.4f}")
+    final_test_auprc = average_precision_score(test_labels, test_probs[:, 1])
+    final_test_auc = roc_auc_score(test_labels, test_probs[:, 1])
+    final_test_bacc = balanced_accuracy_score(test_labels, test_preds)
+    final_test_f1 = f1_score(test_labels, test_preds)
+
+    print(f"\n✅ Best Validation AUPRC during training: {max(history['val_auprc']):.4f}")
+    print(f"✅ Final Test AUPRC (from best model): {final_test_auprc:.4f}")
+    print(f"✅ Final Test AUC (from best model): {final_test_auc:.4f}")
+    print(f"✅ Final Test BACC (from best model): {final_test_bacc:.4f}")
+    print(f"✅ Final Test F1 (from best model): {final_test_f1:.4f}")
     
-    # Compute 5-Fold CV Balanced Accuracy on the full training data
-    print(f"\n🔍 Computing 5-Fold CV Balanced Accuracy...")
-    cv_scores = compute_cv_balanced_acc(desc_train, ecfp_train, maccs_train, rdkit_train, smiles_train, y_train, n_splits=5)
+    # Compute 5-Fold CV AUPRC on the full training data
+    print(f"\n🔍 Computing 5-Fold CV AUPRC...")
+    cv_scores = compute_cv_auprc(desc_train, ecfp_train, maccs_train, rdkit_train, smiles_train, y_train, n_splits=5)
     cv_mean, cv_std = np.mean(cv_scores), np.std(cv_scores)
     
-    print(f"✅ 5-Fold CV Balanced Accuracy: {cv_mean:.4f} ± {cv_std:.4f}")
+    print(f"✅ 5-Fold CV AUPRC: {cv_mean:.4f} ± {cv_std:.4f}")
     
     # Save baseline results
     baseline_results = {
         'train_samples': len(y_train),
         'test_samples': len(y_test),
         'epochs': epochs,
-        'best_val_balanced_acc': max(history['val_balanced_acc']),
-        'final_test_balanced_acc': final_test_balanced_acc,
+        'best_val_auprc': max(history['val_auprc']),
+        'final_test_auprc': final_test_auprc,
+        'final_test_auc': final_test_auc,
+        'final_test_bacc': final_test_bacc,
+        'final_test_f1': final_test_f1,
         'cv_mean': cv_mean,
         'cv_std': cv_std,
         'cv_scores': cv_scores.tolist(),
         'train_losses': history['loss'],
         'train_accs': history['acc'],
-        'val_balanced_accs': history['val_balanced_acc']
+        'val_auprcs': history['val_auprc']
     }
     
     # Save to CSV
@@ -1102,7 +1152,7 @@ def train_baseline_multimodal(
         'epoch': list(range(1, epochs + 1)),
         'train_loss': history['loss'],
         'train_acc': history['acc'],
-        'val_balanced_acc': history['val_balanced_acc']
+        'val_auprc': history['val_auprc']
     })
     baseline_csv_path = os.path.join(output_dir, "baseline_training_history.csv")
     baseline_df.to_csv(baseline_csv_path, index=False)
@@ -1113,8 +1163,11 @@ def train_baseline_multimodal(
         'model': 'Multimodal_Baseline',
         'train_samples': len(y_train),
         'test_samples': len(y_test),
-        'best_val_balanced_acc': max(history['val_balanced_acc']),
-        'final_test_balanced_acc': final_test_balanced_acc,
+        'best_val_auprc': max(history['val_auprc']),
+        'final_test_auprc': final_test_auprc,
+        'final_test_auc': final_test_auc,
+        'final_test_bacc': final_test_bacc,
+        'final_test_f1': final_test_f1,
         'cv_mean': cv_mean,
         'cv_std': cv_std
     }])
@@ -1123,12 +1176,12 @@ def train_baseline_multimodal(
     print(f"✅ Saved summary to {summary_csv_path}")
     
     # Plot training history
-    plot_baseline_training(history['loss'], history['acc'], history['val_balanced_acc'], output_dir)
+    plot_baseline_training(history['loss'], history['acc'], history['val_auprcs'], output_dir)
     
     return baseline_results
 
 
-def plot_baseline_training(train_losses, train_accs, val_balanced_accs, output_dir):
+def plot_baseline_training(train_losses, train_accs, val_auprcs, output_dir):
     """Plot baseline training curves"""
     
     fig, axes = plt.subplots(1, 3, figsize=(9, 3))
@@ -1148,12 +1201,12 @@ def plot_baseline_training(train_losses, train_accs, val_balanced_accs, output_d
     axes[1].set_title('Training Accuracy', fontsize=12, fontweight='bold', style='italic')
     axes[1].grid(True, alpha=0.7, linestyle='--')
     
-    # Validation Balanced Accuracy curve
-    axes[2].plot(epochs_range, val_balanced_accs, 'royalblue')
-    axes[2].axhline(y=max(val_balanced_accs), color='orange', linestyle='--', label=f'Best: {max(val_balanced_accs):.4f}')
+    # Validation AUPRC curve
+    axes[2].plot(epochs_range, val_auprcs, 'royalblue')
+    axes[2].axhline(y=max(val_auprcs), color='orange', linestyle='--', label=f'Best: {max(val_auprcs):.4f}')
     axes[2].set_xlabel('Epoch', fontsize=12, fontweight='bold', style='italic')
-    axes[2].set_ylabel('Validation BACC', fontsize=12, fontweight='bold', style='italic')
-    axes[2].set_title('Validation BACC', fontsize=12, fontweight='bold', style='italic')
+    axes[2].set_ylabel('Validation AUPRC', fontsize=12, fontweight='bold', style='italic')
+    axes[2].set_title('Validation AUPRC', fontsize=12, fontweight='bold', style='italic')
     axes[2].legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=9)
     axes[2].grid(True, alpha=0.7, linestyle='--')
     
@@ -1226,8 +1279,8 @@ def plot_umap_sampling(
     df.to_csv(csv_output_file, index=False)
 
 
-# === 9. Active Learning Experiment with CV ===
-def active_learning_multimodal_with_cv(
+# === 9. Active Learning Experiment ===
+def active_learning_multimodal(
     desc_train, ecfp_train, maccs_train, rdkit_train, smiles_train, y_train,
     desc_test, ecfp_test, maccs_test, rdkit_test, smiles_test, y_test,
     output_dir,
@@ -1242,15 +1295,10 @@ def active_learning_multimodal_with_cv(
     initial_idx = np.random.choice(len(desc_train), n_initial, replace=False)
     pool_idx = np.setdiff1d(np.arange(len(desc_train)), initial_idx)
     
-    # Track performance
-    test_performance = {
-        'random': [], 'uncertainty': [], 'entropy': [],
-        'margin': [], 'novelty': [], 'diversity': []
-    }
-    cv_performance = {
-        'random': [], 'uncertainty': [], 'entropy': [],
-        'margin': [], 'novelty': [], 'diversity': []
-    }
+    # Track performance for test set
+    strategies = ['random', 'uncertainty', 'entropy', 'margin', 'novelty', 'diversity']
+    metrics = ['auprc', 'auc', 'bacc', 'f1']
+    test_performance = {s: {m: [] for m in metrics} for s in strategies}
     sample_sizes = [n_initial]
     
     print(f"\n📊 Initial training set size: {n_initial} samples")
@@ -1265,11 +1313,14 @@ def active_learning_multimodal_with_cv(
     
     # Train initial model
     model = Multimodal(
-        desc_dim=desc_train.shape[1], ecfp_dim=ecfp_train.shape[1],
-        maccs_dim=maccs_train.shape[1], rdkit_dim=rdkit_train.shape[1]
+        desc_dim=desc_train.shape[1],
+        ecfp_dim=ecfp_train.shape[1],
+        maccs_dim=maccs_train.shape[1],
+        rdkit_dim=rdkit_train.shape[1]
     ).to(device)
     
-    train_loader = DataLoader(labeled_dataset, batch_size=32, shuffle=True, collate_fn=collate_fn)
+    initial_batch_size = get_dynamic_batch_size(len(labeled_dataset))
+    train_loader = DataLoader(labeled_dataset, batch_size=initial_batch_size, shuffle=True, collate_fn=collate_fn, drop_last=True)
     test_loader = DataLoader(test_dataset, batch_size=128, shuffle=False, collate_fn=collate_fn)
     
     criterion_cls = FocalLoss()
@@ -1283,24 +1334,22 @@ def active_learning_multimodal_with_cv(
     )
     model.load_state_dict(best_initial_state)
     
-    # Initial test Balanced Accuracy
+    # Initial test metrics
     probs, labels = evaluate_multimodal(model, test_loader, device)
     preds = np.argmax(probs, axis=1)
-    initial_test_balanced_acc = balanced_accuracy_score(labels, preds)
-    
-    # Initial CV Balanced Accuracy
-    cv_scores = compute_cv_balanced_acc(
-        desc_train.iloc[initial_idx], ecfp_train.iloc[initial_idx],
-        maccs_train.iloc[initial_idx], rdkit_train.iloc[initial_idx], smiles_train[initial_idx], y_train[initial_idx]
-    )
-    initial_cv_mean, initial_cv_std = np.mean(cv_scores), np.std(cv_scores)
+    initial_metrics = {
+        'auprc': average_precision_score(labels, probs[:, 1]),
+        'auc': roc_auc_score(labels, probs[:, 1]),
+        'bacc': balanced_accuracy_score(labels, preds),
+        'f1': f1_score(labels, preds)
+    }
     
     print(f"\n🎯 Query round 0/{n_queries}")
     print(f"Initial performance:")
-    for strategy in test_performance:
-        test_performance[strategy].append(initial_test_balanced_acc)
-        cv_performance[strategy].append((initial_cv_mean, initial_cv_std))
-        print(f"  {strategy.capitalize()}: Test Balanced Accuracy = {initial_test_balanced_acc:.4f}, CV Balanced Accuracy = {initial_cv_mean:.4f} ± {initial_cv_std:.4f}")
+    for strategy in strategies:
+        for metric, value in initial_metrics.items():
+            test_performance[strategy][metric].append(value)
+        print(f"  {strategy.capitalize()}: Test AUPRC={initial_metrics['auprc']:.4f}, Test AUC={initial_metrics['auc']:.4f}, Test BACC={initial_metrics['bacc']:.4f}, Test F1={initial_metrics['f1']:.4f}")
     
     # Active learning loop
     current_labeled_idx = initial_idx.copy()
@@ -1328,13 +1377,15 @@ def active_learning_multimodal_with_cv(
             desc_dim=desc_train.shape[1], ecfp_dim=ecfp_train.shape[1],
             maccs_dim=maccs_train.shape[1], rdkit_dim=rdkit_train.shape[1]
         ).to(device)
+        
+        temp_batch_size = get_dynamic_batch_size(len(current_labeled_idx))
         temp_train_loader = DataLoader(
             MolecularDataset(
                 desc_train.iloc[current_labeled_idx], ecfp_train.iloc[current_labeled_idx],
                 maccs_train.iloc[current_labeled_idx], rdkit_train.iloc[current_labeled_idx],
                 smiles_train[current_labeled_idx], y_train[current_labeled_idx]
             ),
-            batch_size=32, shuffle=True, collate_fn=collate_fn
+            batch_size=temp_batch_size, shuffle=True, collate_fn=collate_fn, drop_last=True
         )
         temp_optimizer = torch.optim.Adam(temp_model.parameters(), lr=0.001)
         temp_criterion_cls = FocalLoss()
@@ -1352,7 +1403,7 @@ def active_learning_multimodal_with_cv(
         all_embeddings_2d = umap_reducer.transform(all_embeddings)
         # --- End UMAP Setup ---
 
-        for strategy in ['random', 'uncertainty', 'entropy', 'margin', 'novelty', 'diversity']:
+        for strategy in strategies:
             print(f"\n  🔍 Strategy: {strategy.capitalize()}")
             
             # Create current datasets
@@ -1373,7 +1424,8 @@ def active_learning_multimodal_with_cv(
                 maccs_dim=maccs_train.shape[1], rdkit_dim=rdkit_train.shape[1]
             ).to(device)
             
-            train_loader = DataLoader(current_labeled_dataset, batch_size=32, shuffle=True, collate_fn=collate_fn)
+            strategy_batch_size = get_dynamic_batch_size(len(current_labeled_dataset))
+            train_loader = DataLoader(current_labeled_dataset, batch_size=strategy_batch_size, shuffle=True, collate_fn=collate_fn, drop_last=True)
             criterion_cls = FocalLoss()
             criterion_recon = nn.CrossEntropyLoss(ignore_index=char_to_idx['<pad>'])
             optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
@@ -1455,22 +1507,21 @@ def active_learning_multimodal_with_cv(
                 torch.save(best_final_state, model_path)
                 print(f"    💾 Saved final model for {strategy} to {model_path}")
 
-            # Test Balanced Accuracy
+            # Calculate all test metrics
             probs, labels = evaluate_multimodal(model_final, test_loader, device)
             preds = np.argmax(probs, axis=1)
-            test_balanced_acc = balanced_accuracy_score(labels, preds)
-            test_performance[strategy].append(test_balanced_acc)
             
-            # CV Balanced Accuracy
-            cv_scores = compute_cv_balanced_acc(
-                desc_train.iloc[strategy_labeled_idx], ecfp_train.iloc[strategy_labeled_idx],
-                maccs_train.iloc[strategy_labeled_idx], rdkit_train.iloc[strategy_labeled_idx],
-                smiles_train[strategy_labeled_idx], y_train[strategy_labeled_idx]
-            )
-            cv_mean, cv_std = np.mean(cv_scores), np.std(cv_scores)
-            cv_performance[strategy].append((cv_mean, cv_std))
+            test_metrics = {
+                'auprc': average_precision_score(labels, probs[:, 1]),
+                'auc': roc_auc_score(labels, probs[:, 1]),
+                'bacc': balanced_accuracy_score(labels, preds),
+                'f1': f1_score(labels, preds)
+            }
             
-            print(f"Test Balanced Accuracy = {test_balanced_acc:.4f}, CV Balanced Accuracy = {cv_mean:.4f} ± {cv_std:.4f}")
+            for metric, value in test_metrics.items():
+                test_performance[strategy][metric].append(value)
+            
+            print(f"    Test AUPRC={test_metrics['auprc']:.4f}, AUC={test_metrics['auc']:.4f}, BACC={test_metrics['bacc']:.4f}, F1={test_metrics['f1']:.4f}")
         
         # Update for next round (using random selection)
         chosen = selected_indices['random']
@@ -1478,19 +1529,18 @@ def active_learning_multimodal_with_cv(
         current_pool_idx = np.delete(current_pool_idx, chosen)
         sample_sizes.append(len(current_labeled_idx))
     
-    return test_performance, cv_performance, sample_sizes
+    return test_performance, sample_sizes
 
 
 # === 10. Plot Learning Curves ===
 def plot_learning_curves_separate(
     test_performance,
-    cv_performance,
     sample_sizes,
-    total_train_size,              # <-- added
+    total_train_size,
     output_dir,
     model_name="Multimodal"
 ):
-    """Plot separate figures for test and CV Balanced Accuracy with x-axis = % of FULL training set."""
+    """Plot separate figures for test metrics with x-axis = % of FULL training set."""
     
     colors = {'random': 'royalblue', 'uncertainty': 'red', 'entropy': 'green',
               'margin': 'purple', 'novelty': 'orange', 'diversity': 'brown'}
@@ -1500,44 +1550,25 @@ def plot_learning_curves_separate(
     # Percent relative to FULL training set (e.g. 250 / 533 ≈ 46.9%)
     sample_percent = [100.0 * s / total_train_size for s in sample_sizes]
     
-    # Test Balanced Accuracy
-    fig1, ax1 = plt.subplots(figsize=(6,3))
-    for strategy, scores in test_performance.items():
-        ax1.plot(sample_percent, scores, marker=markers[strategy], color=colors[strategy],
-                 label=strategy.capitalize(), linewidth=1)
-    
-    ax1.set_xlabel('Training set (% of full train data)', fontsize=12, fontweight='bold', style='italic')
-    ax1.set_ylabel('Test BACC', fontsize=12, fontweight='bold', style='italic')
-    ax1.set_title(f'Test Set - {model_name}', fontsize=12, fontweight='bold', style='italic')
-    ax1.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=9)
-    ax1.grid(True, alpha=0.7, linestyle='--')
-    plt.tight_layout()
-    
-    output_file1 = os.path.join(output_dir, f"learning_curves_test.svg")
-    plt.savefig(output_file1, dpi=500, format='svg', bbox_inches='tight')
-    plt.close()
-    print(f"✅ Saved Test Balanced Accuracy: {output_file1}")
-    
-    # CV Balanced Accuracy
-    fig2, ax2 = plt.subplots(figsize=(6,3))
-    for strategy, cv_scores in cv_performance.items():
-        means = [m for m, _ in cv_scores]
-        stds  = [s for _, s in cv_scores]
-        ax2.errorbar(sample_percent, means, yerr=stds, marker=markers[strategy],
-                     color=colors[strategy], label=strategy.capitalize(),
-                     linewidth=1, capsize=0, alpha=0.85)
-    
-    ax2.set_xlabel('Training set (% of full train data)', fontsize=12, fontweight='bold', style='italic')
-    ax2.set_ylabel('CV BACC (mean ± SD)', fontsize=12, fontweight='bold', style='italic')
-    ax2.set_title(f'5-Fold CV - {model_name}', fontsize=12, fontweight='bold', style='italic')
-    ax2.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=9)
-    ax2.grid(True, alpha=0.3, linestyle='--')
-    plt.tight_layout()
-    
-    output_file2 = os.path.join(output_dir, f"learning_curves_cv.svg")
-    plt.savefig(output_file2, dpi=500, format='svg', bbox_inches='tight')
-    plt.close()
-    print(f"✅ Saved CV Balanced Accuracy: {output_file2}")
+    # --- Test Metrics Plots ---
+    for metric in ['auprc', 'auc', 'bacc', 'f1']:
+        metric_upper = metric.upper()
+        fig, ax = plt.subplots(figsize=(6,3))
+        for strategy, scores_dict in test_performance.items():
+            ax.plot(sample_percent, scores_dict[metric], marker=markers[strategy], color=colors[strategy],
+                     label=strategy.capitalize(), linewidth=1)
+        
+        ax.set_xlabel('Training set (% of full train data)', fontsize=12, fontweight='bold', style='italic')
+        ax.set_ylabel(f'Test {metric_upper}', fontsize=12, fontweight='bold', style='italic')
+        ax.set_title(f'Test Set {metric_upper} - {model_name}', fontsize=12, fontweight='bold', style='italic')
+        ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=9)
+        ax.grid(True, alpha=0.7, linestyle='--')
+        plt.tight_layout()
+        
+        output_file = os.path.join(output_dir, f"learning_curves_test_{metric}.svg")
+        plt.savefig(output_file, dpi=500, format='svg', bbox_inches='tight')
+        plt.close()
+        print(f"✅ Saved Test {metric_upper} plot: {output_file}")
 
 
 # === 11. Main Function ===
@@ -1550,7 +1581,7 @@ def main(endpoint= "hepatotoxicity"):
     print("📂 Loading data...")
     
     # Load labels from the data/AL directory
-    df = pd.read_excel("Supporting_Information_2.xlsx", sheet_name=f"S1. {endpoint} dataset", index_col=0)
+    df = pd.read_excel("Supporting_Information_2.xlsx", sheet_name=f"{endpoint}", index_col=0)
     output_dir = f"active_learning_multimodal_{endpoint}"
     os.makedirs(output_dir, exist_ok=True)
     print(f"📁 Folder '{output_dir}' ถูกสร้างแล้ว (หรือมีอยู่แล้ว)")
@@ -1610,7 +1641,7 @@ def main(endpoint= "hepatotoxicity"):
     total_train_size = len(y_train)
     n_initial = int(total_train_size * 0.05)
     n_instances = max(1, int(total_train_size * 0.005)) # Ensure at least 1 sample is added
-    n_queries = 10 # Number of rounds to run
+    n_queries = 20 # Number of rounds to run
 
     print(f"📊 Active Learning Setup:")
     print(f"  - Initial training size: {n_initial} samples (5%)")
@@ -1618,7 +1649,7 @@ def main(endpoint= "hepatotoxicity"):
     print(f"  - Number of queries: {n_queries}")
 
     # Run active learning
-    test_perf, cv_perf, sample_sizes = active_learning_multimodal_with_cv(
+    test_perf, sample_sizes = active_learning_multimodal(
         desc_train, ecfp_train, maccs_train, rdkit_train, smiles_train, y_train,
         desc_test, ecfp_test, maccs_test, rdkit_test, smiles_test, y_test,
         output_dir,
@@ -1632,20 +1663,18 @@ def main(endpoint= "hepatotoxicity"):
     df = pd.DataFrame({"n_samples": sample_sizes})
     total_train_size = len(y_train)
     df["percent_of_full_train"] = [100.0 * s / total_train_size for s in sample_sizes]
-    for strategy, scores in test_perf.items():
-        df[f"{strategy}_test"] = scores
-    for strategy, cv_scores in cv_perf.items():
-        means = [m for m, _ in cv_scores]
-        stds  = [s for _, s in cv_scores]
-        df[f"{strategy}_cv_mean"] = means
-        df[f"{strategy}_cv_std"]  = stds
     
+    # Add columns for each metric and strategy
+    for strategy, metric_dict in test_perf.items():
+        for metric, scores in metric_dict.items():
+            df[f"{strategy}_test_{metric}"] = scores
+            
     csv_path = os.path.join(output_dir, "performance_active_learning.csv")
     df.to_csv(csv_path, index=False)
     print(f"\n✅ Saved active learning performance to {csv_path}")
     
     # Plot learning curves with full train size reference
-    plot_learning_curves_separate(test_perf, cv_perf, sample_sizes, total_train_size, output_dir)
+    plot_learning_curves_separate(test_perf, sample_sizes, total_train_size, output_dir)
 
     # === COMPARISON SUMMARY ===
     print(f"\n{'='*80}")
@@ -1653,35 +1682,44 @@ def main(endpoint= "hepatotoxicity"):
     print(f"{'='*80}\n")
     
     print(f"BASELINE (100% data):")
-    print(f"  Test Balanced Accuracy: {baseline_results['final_test_balanced_acc']:.4f}")
-    print(f"  5-CV Balanced Accuracy: {baseline_results['cv_mean']:.4f} ± {baseline_results['cv_std']:.4f}")
+    print(f"  Test AUPRC: {baseline_results['final_test_auprc']:.4f}")
+    print(f"  Test AUC:   {baseline_results['final_test_auc']:.4f}")
+    print(f"  Test BACC:  {baseline_results['final_test_bacc']:.4f}")
+    print(f"  Test F1:    {baseline_results['final_test_f1']:.4f}")
+    print(f"  5-CV AUPRC: {baseline_results['cv_mean']:.4f} ± {baseline_results['cv_std']:.4f}")
     
     print(f"\nACTIVE LEARNING (Final results):")
     for strategy in test_perf:
-        test_final = test_perf[strategy][-1]
-        cv_final_mean, cv_final_std = cv_perf[strategy][-1]
+        final_metrics = {m: v[-1] for m, v in test_perf[strategy].items()}
         samples_used = sample_sizes[-1]
         percent_used = 100.0 * samples_used / len(y_train)
-        print(f"  {strategy.capitalize():12s} ({percent_used:.1f}% data): Test = {test_final:.4f}, CV = {cv_final_mean:.4f} ± {cv_final_std:.4f}")
+        print(f"  {strategy.capitalize():12s} ({percent_used:.1f}% data): Test AUPRC={final_metrics['auprc']:.4f}, AUC={final_metrics['auc']:.4f}, BACC={final_metrics['bacc']:.4f}, F1={final_metrics['f1']:.4f}")
     
     # Create comparison table
     comparison_data = [{
         'Method': 'Baseline (100%)',
         'Samples': len(y_train),
         'Percent': 100.0,
-        'Test_Balanced_Accuracy': baseline_results['final_test_balanced_acc'],
-        'CV_Mean': baseline_results['cv_mean'],
-        'CV_Std': baseline_results['cv_std']
+        'Test_AUPRC': baseline_results['final_test_auprc'],
+        'Test_AUC': baseline_results['final_test_auc'],
+        'Test_BACC': baseline_results['final_test_bacc'],
+        'Test_F1': baseline_results['final_test_f1'],
+        'CV_AUPRC_Mean': baseline_results['cv_mean'],
+        'CV_AUPRC_Std': baseline_results['cv_std']
     }]
     
     for strategy in test_perf:
+        final_metrics = {m: v[-1] for m, v in test_perf[strategy].items()}
         comparison_data.append({
             'Method': f'AL_{strategy.capitalize()}',
             'Samples': sample_sizes[-1],
             'Percent': 100.0 * sample_sizes[-1] / len(y_train),
-            'Test_Balanced_Accuracy': test_perf[strategy][-1],
-            'CV_Mean': cv_perf[strategy][-1][0],
-            'CV_Std': cv_perf[strategy][-1][1]
+            'Test_AUPRC': final_metrics['auprc'],
+            'Test_AUC': final_metrics['auc'],
+            'Test_BACC': final_metrics['bacc'],
+            'Test_F1': final_metrics['f1'],
+            'CV_AUPRC_Mean': None, # No CV for AL iterations
+            'CV_AUPRC_Std': None
         })
     
     comparison_df = pd.DataFrame(comparison_data)
@@ -1694,4 +1732,5 @@ def main(endpoint= "hepatotoxicity"):
     print(f"{'='*80}\n")
 
 if __name__ == "__main__":
-    main(endpoint="hepatotoxicity")
+    for endpoint in ["neurotoxicity", "nephrotoxicity", "PBMC_toxicity", "SCARs", "Skinsensitzation"]:
+        main(endpoint=endpoint) #"hepatotoxicity", "respirotoxicity", "cardiotoxicity",

@@ -1,0 +1,6 @@
+SMILES
+O=C1CN(c2ncc([N+](=O)[O-])s2)C(=O)N1
+Cc1nc(N)nc(Nc2ccccc2)n1
+O=C(OCCN1CCCOCC1)C(c1ccccc1)c1ccccc1
+Clc1ccc(N2N=NC[C@H]2c2ccncc2)cc1
+CCOc1ccc(Cc2nc3cc(C(C)=O)ccc3n2CCN(CC)CC)cc1

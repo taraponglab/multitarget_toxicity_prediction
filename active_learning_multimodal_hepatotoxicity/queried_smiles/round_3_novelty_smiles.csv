@@ -1,8 +1,8 @@
 SMILES
-CCCCc1oc2ccccc2c1C(=O)c1cc(I)c(OCCN(CC)CC)c(I)c1
-NC(Cc1cc(I)c(Oc2cc(I)c(O)c(I)c2)c(I)c1)C(=O)O
-OC(CBr)C(O)C(O)C(O)CBr
-CN(C)C=Nc1c(I)cc(I)c(CCC(=O)O)c1I
+O=C(O)C(Cl)Cl
+CC(Cl)CCl
+CC(=O)Nc1c(I)cc(I)c(C(=O)O)c1I
+ClC(Cl)Cl
 ClC(Cl)(Cl)Cl
 CCBr
 ClC(Cl)Br

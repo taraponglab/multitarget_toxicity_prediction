@@ -1,0 +1,16 @@
+SMILES
+Cc1cccc(C(CCCN)(c2ccccc2)c2ccccc2)c1
+C[n+]1c(CCc2ccc(-c3ccccc3)cc2)cccc1CCc1ccc(-c2ccccc2)cc1
+CNCc1ccc(Br)cc1Oc1ccc(Cl)c(Cl)c1
+c1ccc(-n2cc(-c3ccnc4ccccc34)cn2)cc1
+Nc1ccc2cc3ccccc3cc2c1
+CCCCc1oc2ccccc2c1C(=O)c1cc(I)c(OCCN(C(C)C)C(C)C)c(I)c1
+CCCCc1oc2ccccc2c1C(=O)c1cc(I)c(OCCN2CCCCC2)c(I)c1
+CCCCc1oc2ccccc2c1C(=O)c1cc(I)c(OCCNC(=O)CC)c(I)c1
+CCCCc1oc2ccccc2c1C(=O)c1cc(I)c(OCCN(CC)CC)c(I)c1
+CCCCc1oc2ccccc2c1C(=O)c1cc(I)c(OCC[NH+](CC)CC)c(I)c1
+CCCCc1oc2ccccc2c1C(=O)c1cc(I)c(OCCN)c(I)c1
+CCCCc1oc2ccccc2c1C(=O)c1cc(I)c(OCCO)c(I)c1
+CCCCc1oc2ccccc2c1C(=O)c1cc(I)c(OCCC)c(I)c1
+O=C1OC2(c3cc(Br)c(O)c(Br)c3Oc3c2cc(Br)c(O)c3Br)c2c(Cl)c(Cl)c(Cl)c(Cl)c21
+ClC(Cl)Cl

@@ -1,0 +1,6 @@
+SMILES
+Cc1cc(=O)n(-c2cccc(SC(F)F)c2)n1C
+C=CCN(CC=C)C[C@@H](O)Cn1cnc2c1c(=O)n(C)c(=O)n2C
+COc1ccc(C(=O)CC2(O)C(=O)c3ccccc3C2=O)cc1OC
+COc1cc([C@@H]2c3cc4c(cc3[C@H](O)[C@H]3COC(=O)[C@@H]23)OCO4)cc(OC)c1OC
+C[N+](C)(C)CCOP(=O)([O-])OP(=O)(O)OC[C@H]1O[C@@H](n2ccc(N)nc2=O)[C@H](O)[C@@H]1O

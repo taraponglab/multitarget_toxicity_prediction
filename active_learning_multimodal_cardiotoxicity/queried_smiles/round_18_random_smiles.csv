@@ -1,0 +1,16 @@
+SMILES
+Cc1ccc(C(C)N2C3CCC2CC(Oc2cccc(C(N)=O)c2)C3)s1
+O=C(Nc1ccc(-c2nnc(NCCCN3CCCCC3)o2)cc1F)c1ccccc1F
+COc1ccc2c(=O)n(CC(CO)NCc3cccnc3)c(C#N)c(-c3ccccc3)c2c1
+CN1CCC[C@H](c2nc3ccccc3n2Cc2ccc(F)cc2)C1
+NC(=O)c1cccc(OC2CC3CCC(C2)N3C2CCCc3ccccc32)c1
+CNCc1cc(C#N)ccc1Oc1ccc(Cl)cc1Cl
+CCCCN1CCC[C@H]1Cn1nc(Cc2ccc(Cl)cc2)c2ncccc2c1=O
+Cn1c(SCCCN2CC3CCN(c4ccc(C(F)(F)F)cc4)C3C2)nnc1-c1ccc(=O)n(C)c1
+Cc1ccc(OCCN(C)CCc2ccc(N)cc2)c(C(N)=O)c1
+Nc1ccc(-c2cccs2)cc1NC(=O)c1ccc(N2CCC3(CC2)C(=O)NCN3c2ccccc2)nc1
+COc1cc2ncnc(N3CCC(CCNS(N)(=O)=O)CC3)c2cc1OC
+CCc1cc(Oc2cc(Cl)ccc2CNC)ccc1Cl
+COc1ccc(C2CN(CCc3ccc(OC)c(OC)c3)CC2CC(=O)N(C)c2cccc(Cl)c2)cc1
+NCC(O)COc1ccc2ncc(F)c(CCC34CCC(NCc5ccc6c(n5)NC(=O)CO6)(CC3)CO4)c2n1
+O=C([O-])CN(CCOc1ccc([N+](=O)[O-])cc1)CCc1ccc([N+](=O)[O-])cc1

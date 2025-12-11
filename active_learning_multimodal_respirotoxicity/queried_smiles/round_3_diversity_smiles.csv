@@ -1,0 +1,6 @@
+SMILES
+CCCC1(CCC)CN(CC(C)N2C(=O)N(c3cccc(Cl)c3)CC2C)C1
+[CH3][Hg][S][Hg][CH3]
+CC[CH2][Hg][S][Hg][CH2]CC
+c1cc[c]([Hg][S][Hg][c]2ccccc2)cc1
+CC1(C)CC[C@]2(C(=O)O[C@@H]3O[C@H](CO)[C@@H](O)[C@H](O)[C@H]3O)CC[C@@]3(C)C(=CC[C@H]4[C@@]5(C)CC[C@@H](O[C@@H]6O[C@H](C(=O)O)[C@@H](O)[C@H](O)[C@H]6O[C@@H]6O[C@H](CO)[C@@H](O)[C@H](O)[C@H]6O)C(C)(C)[C@H]5CC[C@]43C)[C@H]2C1

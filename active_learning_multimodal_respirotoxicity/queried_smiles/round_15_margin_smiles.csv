@@ -1,0 +1,6 @@
+SMILES
+O=S(=O)(O)SCCNCCCCC1CCCCC1
+CC(C)(C)CCOP(C)(=O)F
+Cn1c(=O)c2c(nc(SCCO)n2C)n(C)c1=O
+Cc1ccc(-c2cn3c4c(=O)n(C)c(=O)n(C)c4nc3n2-c2ccc(C)cc2)cc1
+CCc1ccc(-c2cn3c4c(=O)n(C)c(=O)n(C)c4nc3n2-c2ccccc2)cc1

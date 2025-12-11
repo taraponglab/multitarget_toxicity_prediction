@@ -1,0 +1,16 @@
+SMILES
+Cc1cccc(COC(=O)N2CCC(CNc3ncccn3)CC2)c1
+C[C@@H]1CCCN1CCc1ccc2nc(-c3ccc(C#N)s3)ccc2c1
+COc1ccc2c3c1O[C@H]1[C@@H](O)C=C[C@H]4[C@@H](C2)N(C)CC[C@@]341
+CO/N=C1\CN(c2nc3c(cc2F)c(=O)c(C(=O)O)cn3C2CC2)CC1CN
+COc1cc(N2C(=O)N(c3ccc(-c4ccc(C(=O)N(C)C)cc4)cc3)C(=O)C23CCN(Cc2ncccc2C)CC3)ncn1
+COC(=O)c1ccc(C2CCC(N3CC(NC(=O)CNC(=O)c4cccc(C(F)(F)F)c4)C3)CC2)cc1
+O=[N+]([O-])c1ccc(CCN(CCF)CCOc2ccc([N+](=O)[O-])cc2)cc1
+CC(O)c1ccc2c(c1)N(CCN1CCC(NCc3ccc4c(n3)NC(=O)CO4)CC1)C(=O)CO2
+CSc1ccccc1C(=O)N(C1CCCCC1)C1CCNC1
+CC(C)(C)c1cc(NC(=O)c2cnc3cc(Oc4ncnc5c4CNC5)ccn23)no1
+COc1cc(F)ccc1-c1cncc(C2CCCN2)c1
+COc1cc(-n2cnc3cc(-c4ccc(Cl)cc4)sc3c2=O)ccc1OCC(=O)N1CCCC1
+O=C(CNC(=O)c1cccc(C(F)(F)F)c1)NC1CN(C2CCC(O)(c3ccc(F)cc3)CC2)C1
+CN(C)Cc1cn(-c2ccc(F)cc2)c2ccc(Cl)cc12
+CC(=O)NC1CCN(CCc2ccc(Oc3nc4ccccc4s3)cc2)CC1

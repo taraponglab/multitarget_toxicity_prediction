@@ -1,11 +1,11 @@
 SMILES
-O=C1NC(=O)C2(CCOc3ccc(F)cc32)N1
+CC(=O)c1c(C)cc2ccc(-c3ccc4cc(C)c(C(C)=O)c(O)c4c3O)c(O)c2c1O
 IC(I)I
 BrC(Br)Br
 ClC(Cl)Br
-CC(=O)Nc1c(I)c(C(=O)O)c(I)c(N(C)C(C)=O)c1I
-Clc1c(Cl)c(Cl)c(Cl)c(Cl)c1Cl
-CCBr
+CCCC(=O)Nc1c(I)cc(I)c(CC(CC)C(=O)O)c1I
+OCC1OC(OCC2OC(OCC3OC(OCC4OC(OC5(CO)OC(CO)C(O)C5O)C(O)C(O)C4O)C(O)C(O)C3O)C(O)C(O)C2O)C(O)C(O)C1O
+CN(C)CCO
 BrCCBr
-CCC(Cc1c(I)cc(I)c(N)c1I)C(=O)O
-ClC1=C(Cl)C2(Cl)C3C4C=CC(C4)C3C1(Cl)C2(Cl)Cl
+O=C(CCBr)N1CCN(C(=O)CCBr)CC1
+Cc1c2oc3c(C)ccc(C(=O)N[C@@H]4C(=O)N[C@H](C(C)C)C(=O)N5CCC[C@H]5C(=O)N(C)CC(=O)N(C)[C@@H](C(C)C)C(=O)O[C@@H]4C)c3nc-2c(C(=O)N[C@@H]2C(=O)N[C@H](C(C)C)C(=O)N3CCC[C@H]3C(=O)N(C)CC(=O)N(C)[C@@H](C(C)C)C(=O)O[C@@H]2C)c(N)c1=O

@@ -1,0 +1,6 @@
+SMILES
+O=C/C=C(\Cl)c1ccc(Br)cc1
+Cc1ncc2c(=O)nc(SCCCN3CCN(c4ccccc4)CC3)n(-c3ccccc3)c2n1
+CSCCn1c(=O)oc2ccc(F)cc21
+O=C/C=C(\Cl)c1ccc(I)cc1
+Nc1c(F)c(F)c(F)c(F)c1F

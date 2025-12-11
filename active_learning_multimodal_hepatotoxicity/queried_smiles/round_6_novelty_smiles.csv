@@ -1,9 +1,9 @@
 SMILES
-CCCC(=O)Nc1c(I)cc(I)c(CC(CC)C(=O)O)c1I
-CC(=O)Nc1c(I)c(C(=O)O)c(I)c(N(C)C(C)=O)c1I
-CC(=O)NCc1c(I)c(NC(C)=O)c(I)c(C(=O)O)c1I
-CC(=O)Nc1c(I)c(NC(C)=O)c(I)c(C(=O)O)c1I
-CC(=O)N(CC(C)C(=O)O)c1c(I)cc(I)c(N)c1I
+N[C@@H](Cc1cc(I)c(Oc2ccc(O)c(I)c2)c(I)c1)C(=O)O
+NC(Cc1cc(I)c(Oc2ccc(O)c(I)c2)c(I)c1)C(=O)O
+FC(F)(F)C(Cl)Br
+CCC(Cc1c(I)cc(I)c(N)c1I)C(=O)O
+CC(=O)Nc1c(I)cc(I)c(C(=O)O)c1I
 CCBr
 ClC(Cl)Br
 BrCCBr
