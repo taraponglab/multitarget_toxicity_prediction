@@ -1,6 +1,0 @@
-SMILES
-O=c1c2cc(-c3ccccc3)sc2nc2sc(-c3ccccc3)nn12
-O=c1c2sc3ccccc3c2nc2sc(-c3ccccc3)nn12
-O=c1c2c(nc3sc(-c4ccccc4)nn13)sc1ccccc12
-Cc1cc(-n2c(-c3ccccc3)nc3ccccc3c2=O)on1
-CC1=NN=C(c2ccc(NC(=O)CN)cc2)c2cc3c(cc2C1)OCO3

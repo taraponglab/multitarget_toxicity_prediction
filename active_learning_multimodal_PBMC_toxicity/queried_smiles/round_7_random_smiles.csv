@@ -1,6 +1,0 @@
-SMILES
-CC1=C(c2nc(-c3cccc(C#N)c3)cs2)C(c2cccc(O)c2)NC(=O)N1C
-CC1=C(c2nc(-c3ccc(C#N)cc3)cs2)C(c2cccnc2F)NC(=O)N1
-Cc1ccc(NC(=O)c2ccnc(N3CCCCC3)c2)cc1-c1ccc(C(=O)NCC2CC2)cc1
-CC1(C)OCC(CN2CCN(C(=O)c3cc(C(C)(C)C)sc3NC(=O)Nc3cccc(Cl)c3Cl)CCC2=O)O1
-O=C(O)C(=O)CC(=O)c1cc2ccccc2c2ccccc12

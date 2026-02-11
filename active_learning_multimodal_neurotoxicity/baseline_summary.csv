@@ -1,2 +1,0 @@
-model,train_samples,test_samples,best_val_balanced_acc,final_test_balanced_acc,cv_mean,cv_std
-Multimodal_Baseline,545,136,0.8283355795148248,0.7373781148429035,0.698177955774778,0.060018045588389766

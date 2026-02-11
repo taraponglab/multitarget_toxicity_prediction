@@ -1,6 +1,0 @@
-SMILES
-COC1=C(OC)C(=O)c2ccccc2C1=O
-O=C1c2ccccc2C(=O)C1C(=O)C(c1ccccc1)c1ccccc1
-Cc1nc(Cn2cc(C)c3ccc(C(=O)Nc4c(Cl)cncc4Cl)cc32)cs1
-Cc1cc(C(=O)N[C@H]2CC[C@@H](NC(=O)c3cc(F)cnc3Oc3cccc(-c4ccc(CN5C[C@@H](C)N[C@@H](C)C5)c(O)c4)c3)CC2)nn1C
-COc1ccc(C(=O)Cc2c(Cl)cncc2Cl)c(OCC(=O)NCCO)c1OC

@@ -1,6 +1,0 @@
-SMILES
-C/C=C/C[C@@H](C)[C@@H](O)[C@H]1C(=O)N[C@@H](CC)C(=O)N(C)CC(=O)N(C)[C@@H](CC(C)C)C(=O)N[C@@H](C(C)C)C(=O)N(C)[C@@H](CC(C)C)C(=O)N[C@@H](C)C(=O)N[C@H](C)C(=O)N(C)[C@@H](CC(C)C)C(=O)N(C)[C@@H](CC(C)C)C(=O)N(C)[C@@H](C(C)C)C(=O)N1C
-C/C=C/C[C@@H](C)[C@@H](O)[C@H]1C(=O)N[C@@H](CC)C(=O)N(C)[C@H](C)C(=O)N(CC)[C@@H](C(C)C)C(=O)N[C@@H](C(C)C)C(=O)N(C)[C@@H](CC(C)C)C(=O)N[C@@H](C)C(=O)N[C@H](C)C(=O)N(C)[C@@H](CC(C)C)C(=O)N(C)[C@@H](CC(C)C)C(=O)N(C)[C@@H](C(C)C)C(=O)N1C
-CC[C@H]1C[C@H](C)[C@@]2(NC1=O)O[C@@H](C[C@H](O)[C@@H](C)CC/C=C/C=C(\C)[C@@H]1C/C=C/C=C/[C@H](O)[C@H](C)[C@@H](O)[C@@H](CCC(C)=O)C(=O)N[C@@H](C(C)C)C(=O)N[C@@H](Cc3cccc(O)c3)C(=O)N3CCCC(N3)C(=O)O1)[C@H](C)[C@H](O)[C@@H]2C
-O=C(O)c1cc(Br)cc(C(=O)/C=C/c2ccc(Br)cc2)c1O
-N=C(N)NCCC[C@H](NC(=O)[C@H](CCCNC(=N)N)NC(=O)[C@H](CCCNC(=N)N)NC(=O)[C@H](CCCNC(=N)N)NC(=O)[C@H](Cc1c[nH]c2ccccc12)NC(=O)[C@H](CCCNC(=N)N)NC(=O)[C@H](CCCNC(=N)N)NC(=O)[C@H](CCCNC(=N)N)NC(=O)[C@H](CCCNC(=N)N)NC(=O)[C@H](CCCNC(=N)N)NC(=O)[C@@H](N)Cc1c[nH]c2ccccc12)C(=O)N[C@@H](Cc1c[nH]c2ccccc12)C(N)=O

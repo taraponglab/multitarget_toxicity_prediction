@@ -1,6 +1,0 @@
-SMILES
-COc1c(C)c2c(c(O)c1C/C=C(\C)CCC(=O)NCCCCCCNc1ccc([N+](=O)[O-])c3[nH]c4ccccc4c(=O)c13)C(=O)OC2
-COc1cc(-c2nc(Nc3ccc(C)cc3C)c3ccccc3n2)cc(OC)c1OC
-COc1cc(-c2nc(Nc3ccc4c(c3)NCN4)c3ccccc3n2)cc(OC)c1OC
-COc1cc(-c2nc(Nc3ccc4c(c3)OCO4)c3ccccc3n2)cc(OC)c1OC
-COc1ccc(CNc2nc(-c3cc(OC)c(OC)c(OC)c3)nc3ccccc23)cc1

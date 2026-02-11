@@ -1,6 +1,0 @@
-SMILES
-CONC(=O)c1ccc(C)c(Nc2nc(N3CCCN(C)CC3)nc(N(C)CC(C)(C)C)c2C#N)c1
-COc1cccc(-c2nc(C(=O)n3cccn3)co2)c1
-Cc1ccc(C(N)=O)cc1-n1c(C)cc(OCc2ccc(F)cc2F)c(Br)c1=O
-O=C1NCCCc2[nH]c3c(ccc4cnc(/C=C/c5ccccc5)cc43)c21
-C[C@]12C=CC(=O)C=C1[C@@H](F)C[C@H]1[C@@H]3C[C@H]4O[C@@H](c5ccc(CSc6ccccc6)cc5)O[C@@]4(C(=O)CO)[C@@]3(C)C[C@H](O)[C@@]12F
